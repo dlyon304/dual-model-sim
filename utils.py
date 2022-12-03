@@ -3,9 +3,10 @@ import math
 import numpy as np
 
 
-
+# get clean conf fiel data
 def getPconfs(f):
 
+    ''' test mkdocs'''
 
     conf_file = open(f, 'r')
     pconfs = conf_file.readlines()
@@ -36,42 +37,52 @@ def getPconfs(f):
         
     return r, b, n, v, L
     
-    
+ #returns a clean toplogy info data   
 def getTopInfo(f):
-    
-    # read top info
     top_file = open(f,'r')
     top = top_file.readlines()
     top_file.close()
     
+    top = [t.strip() for t in top]
+    top = [t.split() for t in top]
     return top
     
+# simple 3D distance function
 def dist(r1,r2):
     return math.sqrt((r1[0]-r2[0])**2 + (r1[1]-r2[1])**2 + (r1[2]-r2[2])**2)
-    
+   
+#gets the location of every base for every nucleotide   
 def getBlocs(r, b):
     bLocs = []
+    numP = len(r)
     for i in range(numP):
         bLocs.append(np.add(r[i],b[i]))
     return bLocs
-    
+
+#Wil break on nicks and go to neighbor.  P
+#takes in the location of each base and the topology info of the model
 def findH(bLocs, top):
     h_bonds = []
-    for i in range(len(top)-1):
-        strandID = top[i+1][0]
-        center = bLocs[i]
-        closest = 99999
-        closestIndex = i
-        for z in range(len(top)-1):
-            if strandID != top[z+1][0]:
-                dist2center = dist(center,bLocs[z])
-                if dist2center < closest:
+    
+    # Iterate through all particles to attempt to find their H bond neighbor
+    for i in range(1,len(top)):
+        strandID = top[i][0]
+        center = bLocs[i-1]
+        closest = 69.0
+        closestIndex = -1
+        for z in range(1,len(top)):
+            if strandID != top[z][0]:
+                dist2center = dist(center,bLocs[z-1])
+                if dist2center < closest and dist2center > 0.500:
                     closest = dist2center
-                    closestIndex = z
-        h_bonds.append((i,closestIndex))
+                    closestIndex = z-1
+        if closest > 0.85:
+            closestIndex = -1
+        h_bonds.append((i-1,closestIndex))
     return h_bonds
     
-    
+
+# wrapper function for convenient file input
 def getHbonds(confFile, topFile):
     r, b, n, v, L = getPconfs(confFile)
     top = getTopInfo(topFile)
