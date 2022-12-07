@@ -45,17 +45,18 @@ def getPconfs(f):
     confs_dict['v'] = v
     confs_dict['L'] = L
     
-    confs = pd.DataFrame.from_dict(confs_dict, index = pd.RangeIndex(numP))
+    confs = pd.DataFrame(confs_dict, index = pd.RangeIndex(numP))
     
     return confs
 
 
 
  #returns a clean toplogy info data   
-def getTopInfo(f):
+def readTopInfo(f):
     top_file = open(f,'r')
     top = top_file.readlines()
     top_file.close()
+    
     
     top = [t.strip() for t in top]
     top = [t.split() for t in top]
@@ -99,9 +100,25 @@ def findH(bLocs, top):
 # wrapper function for convenient file input
 def getHbonds(confFile, topFile):
     r, b, n, v, L = getPconfs(confFile)
-    top = getTopInfo(topFile)
+    top = readTopInfo(topFile)
     bLocs = getBlocs(r,b)
     return findH(bLocs,top)
+
+
+def top2df(top_file, h_bonds):
+    topology = readTopInfo(top_file)
+    
+    topology = [[int(line[0]),line[1],int(line[2]),int(line[3])] for line in topology[1:]]
+    
+
+    df = pd.DataFrame(topology, 
+                      columns = ['strand', 'base', 'downStream', 'upStream'],
+                      index = range(0,len(topology))
+                      )
+    
+    df['h_bond'] = [b[1] for b in h_bonds]
+    return df
+
     
     
     
