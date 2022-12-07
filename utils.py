@@ -1,6 +1,7 @@
 import statistics
 import math
 import numpy as np
+import pandas as pd
 
 
 # get clean conf fiel data
@@ -34,9 +35,22 @@ def getPconfs(f):
         n.append(np.array(p[6:9]))
         v.append(np.array(p[9:12]))
         L.append(np.array(p[12:]))
-        
-    return r, b, n, v, L
     
+    
+    confs_dict = {}
+    
+    confs_dict['r'] = r
+    confs_dict['b'] = b
+    confs_dict['n'] = n
+    confs_dict['v'] = v
+    confs_dict['L'] = L
+    
+    confs = pd.DataFrame.from_dict(confs_dict, index = pd.RangeIndex(numP))
+    
+    return confs
+
+
+
  #returns a clean toplogy info data   
 def getTopInfo(f):
     top_file = open(f,'r')
